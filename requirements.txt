@@ -1,0 +1,12 @@
+torch
+datasets
+huggingface_hub
+transformers 
+accelerate 
+autoawq 
+qwen-vl-utils
+optimum
+gptqmodel
+peft
+trl
+bitsandbytes
