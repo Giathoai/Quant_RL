@@ -173,7 +173,7 @@ if __name__ == "__main__":
     SFT_MODEL_PATH = os.path.join(BASE_DIR, "r3_quant_checkpoints")
     
     DATA_PATH = os.path.join(BASE_DIR, "data", "science_qa", "test-00000-of-00001-f0e719df791966ff.parquet")
-    NUM_SAMPLES = 1
+    NUM_SAMPLES = 500
     
     if not os.path.exists(DATA_PATH):
         os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
