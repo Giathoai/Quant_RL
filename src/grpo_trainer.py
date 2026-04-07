@@ -13,6 +13,19 @@ from model.lora_setup import apply_lora_to_quantized_model, load_existing_lora_f
 from src.rewards import format_reward_func, accuracy_reward_func
 from src.utils import prepare_scienceqa_for_grpo 
 
+def round_to_28(value):
+    return max(28, (value // 28) * 28)
+
+def preprocess_vlm_image(image):
+    """Đảm bảo ảnh luôn chia hết cho 28 để tránh lệch token."""
+    if image is None: return None
+    w, h = image.size
+    new_w = round_to_28(w)
+    new_h = round_to_28(h)
+    if (w, h) != (new_w, new_h):
+        return image.resize((new_w, new_h), resample=Image.LANCZOS)
+    return image
+
 def logging_reward_func(prompts, completions, **kwargs):
     ground_truths = kwargs.get('answer', kwargs.get('ground_truth', ['N/A'] * len(prompts)))
     print("\n" + "="*60)
@@ -26,8 +39,13 @@ def logging_reward_func(prompts, completions, **kwargs):
     return [0.0] * len(prompts)
 
 def train_r3_quant_grpo(model_dir: str, train_data, output_dir: str, sft_lora_dir: str = None):
-
-    processor = AutoProcessor.from_pretrained(model_dir)
+    processor = AutoProcessor.from_pretrained(
+        model_dir, 
+        processor_kwargs={
+            "min_pixels": 256 * 28 * 28,
+            "max_pixels": 1280 * 28 * 28 
+        }
+    )
     
     if sft_lora_dir and os.path.exists(sft_lora_dir):
         print(f"Đang tải Adapter từ SFT: {sft_lora_dir}")
@@ -94,9 +112,10 @@ def train_r3_quant_grpo(model_dir: str, train_data, output_dir: str, sft_lora_di
         
         logging_steps=1,           
         max_steps=500, #hehehee
-        
+        save_steps=10,               
+        save_total_limit=2,
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=16,       
+        gradient_accumulation_steps=8,       
         gradient_checkpointing=True, 
         
         num_generations=4,                    
