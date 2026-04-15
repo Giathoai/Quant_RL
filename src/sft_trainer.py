@@ -77,7 +77,7 @@ def train_sft_baseline(model_dir: str, train_data, output_dir: str):
         learning_rate=2e-5,          
         lr_scheduler_type="cosine",
         logging_steps=1,           
-        max_steps=500, 
+        max_steps=2, 
         per_device_train_batch_size=1, 
         gradient_accumulation_steps=4,
         gradient_checkpointing=True, 
