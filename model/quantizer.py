@@ -36,21 +36,23 @@ class QwenGPTQQuantizer:
             model = Qwen2VLForConditionalGeneration.from_pretrained(
                 self.base_model_path,
                 config=config,
-                
                 quantization_config=gptq_config,
                 device_map="auto",
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True
             )
 
-            #model.to("cpu")
+
+            if getattr(model, "hf_device_map", None) is None:
+                model.hf_device_map = {"": "cuda:0"} 
+            
             os.makedirs(self.save_path, exist_ok=True)
             model.save_pretrained(self.save_path)
             
             processor = AutoProcessor.from_pretrained(self.base_model_path)
             processor.save_pretrained(self.save_path)
+            print("=> LƯU MODEL LƯỢNG TỬ HÓA THÀNH CÔNG!")
             
         except Exception as e:
             print(f"--- error: {e} ---")
-            sys.exit(1) 
-
+            sys.exit(1)
