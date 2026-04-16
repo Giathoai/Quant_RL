@@ -3,7 +3,12 @@ import os
 import torch
 from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, GPTQConfig, AutoConfig
 
-Qwen2VLForConditionalGeneration.hf_device_map = property(lambda self: {"": "cuda:0"})
+_original_init = Qwen2VLForConditionalGeneration.__init__
+def _patched_init(self, *args, **kwargs):
+    _original_init(self, *args, **kwargs)
+    self.hf_device_map = {"": "cuda:0"}  # Khởi tạo là có ngay bản đồ thiết bị!
+Qwen2VLForConditionalGeneration.__init__ = _patched_init
+# ==============================================================================
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dataset_loader import ScienceQALocalLoader
@@ -39,7 +44,7 @@ class QwenGPTQQuantizer:
                 self.base_model_path,
                 config=config,
                 quantization_config=gptq_config,
-                device_map="auto",
+                device_map={"": "cuda:0"},  # Ép cứng dict map thay vì "auto"
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True
             )
