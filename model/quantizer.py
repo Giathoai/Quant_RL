@@ -3,6 +3,18 @@ import os
 import torch
 from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, GPTQConfig, AutoConfig
 
+# =================================================================
+# 🛠️ THE ULTIMATE "BLACK MAGIC" HOTFIX 
+# Đánh lừa mọi cơ chế kiểm tra của Optimum và Accelerate
+# =================================================================
+_old_getattr = Qwen2VLForConditionalGeneration.__getattr__
+def _new_getattr(self, name):
+    if name == "hf_device_map":
+        return {"": "cuda:0"}  # Ép model luôn báo cáo nó có bản đồ thiết bị
+    return _old_getattr(self, name)
+Qwen2VLForConditionalGeneration.__getattr__ = _new_getattr
+# =================================================================
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dataset_loader import ScienceQALocalLoader
 
@@ -32,14 +44,12 @@ class QwenGPTQQuantizer:
         config = AutoConfig.from_pretrained(self.base_model_path)
         config.use_cache = False
 
-        Qwen2VLForConditionalGeneration.hf_device_map = {"": 0}
-
         try:
             model = Qwen2VLForConditionalGeneration.from_pretrained(
                 self.base_model_path,
                 config=config,
                 quantization_config=gptq_config,
-                device_map={"": 0},  # Ép cứng tạo device_map dạng Dictionary
+                device_map="auto",
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True
             )
@@ -49,6 +59,7 @@ class QwenGPTQQuantizer:
             
             processor = AutoProcessor.from_pretrained(self.base_model_path)
             processor.save_pretrained(self.save_path)
+            
             print("\n" + "="*50)
             print("🎉 LƯỢNG TỬ HÓA VÀ ĐÓNG GÓI THÀNH CÔNG RỰC RỠ!")
             print("="*50 + "\n")
