@@ -36,13 +36,14 @@ class QwenGPTQQuantizer:
             model = Qwen2VLForConditionalGeneration.from_pretrained(
                 self.base_model_path,
                 config=config,
+                
                 quantization_config=gptq_config,
                 device_map="auto",
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True
             )
 
-            model.to("cpu")
+            #model.to("cpu")
             os.makedirs(self.save_path, exist_ok=True)
             model.save_pretrained(self.save_path)
             
