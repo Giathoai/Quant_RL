@@ -3,17 +3,7 @@ import os
 import torch
 from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, GPTQConfig, AutoConfig
 
-# =================================================================
-# 🛠️ THE ULTIMATE "BLACK MAGIC" HOTFIX 
-# Đánh lừa mọi cơ chế kiểm tra của Optimum và Accelerate
-# =================================================================
-_old_getattr = Qwen2VLForConditionalGeneration.__getattr__
-def _new_getattr(self, name):
-    if name == "hf_device_map":
-        return {"": "cuda:0"}  # Ép model luôn báo cáo nó có bản đồ thiết bị
-    return _old_getattr(self, name)
-Qwen2VLForConditionalGeneration.__getattr__ = _new_getattr
-# =================================================================
+Qwen2VLForConditionalGeneration.hf_device_map = property(lambda self: {"": "cuda:0"})
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dataset_loader import ScienceQALocalLoader
