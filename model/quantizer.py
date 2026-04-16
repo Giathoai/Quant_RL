@@ -32,26 +32,26 @@ class QwenGPTQQuantizer:
         config = AutoConfig.from_pretrained(self.base_model_path)
         config.use_cache = False
 
+        Qwen2VLForConditionalGeneration.hf_device_map = {"": 0}
+
         try:
             model = Qwen2VLForConditionalGeneration.from_pretrained(
                 self.base_model_path,
                 config=config,
                 quantization_config=gptq_config,
-                device_map="auto",
+                device_map={"": 0},  # Ép cứng tạo device_map dạng Dictionary
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True
             )
 
-
-            if getattr(model, "hf_device_map", None) is None:
-                model.hf_device_map = {"": "cuda:0"} 
-            
             os.makedirs(self.save_path, exist_ok=True)
             model.save_pretrained(self.save_path)
             
             processor = AutoProcessor.from_pretrained(self.base_model_path)
             processor.save_pretrained(self.save_path)
-            print("=> LƯU MODEL LƯỢNG TỬ HÓA THÀNH CÔNG!")
+            print("\n" + "="*50)
+            print("🎉 LƯỢNG TỬ HÓA VÀ ĐÓNG GÓI THÀNH CÔNG RỰC RỠ!")
+            print("="*50 + "\n")
             
         except Exception as e:
             print(f"--- error: {e} ---")
