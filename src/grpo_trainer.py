@@ -121,7 +121,7 @@ def train_r3_quant_grpo(model_dir: str, train_data, output_dir: str, sft_lora_di
         lr_scheduler_type="cosine",
         
         logging_steps=1,           
-        max_steps=2, #hehehee
+        max_steps=500, #hehehee
         save_steps=10,               
         save_total_limit=2,
         per_device_train_batch_size=1,

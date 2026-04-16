@@ -1,12 +1,24 @@
-torch
-datasets
-huggingface_hub
-transformers 
-accelerate 
-autoawq 
-qwen-vl-utils
-optimum
-gptqmodel
-peft
-trl
-bitsandbytes
+torch>=2.6.0
+numpy>=2.2.6
+
+# Hugging Face Ecosystem
+transformers>=4.53.0
+datasets>=3.1.0
+huggingface_hub>=0.30.0
+accelerate>=1.2.0
+peft>=0.15.0
+trl>=0.15.0
+optimum>=1.25.0
+
+# Quantization & Performance
+bitsandbytes>=0.49.2
+autoawq>=0.2.8
+gptqmodel>=1.5.0
+
+# Qwen Specific Utilities
+qwen-vl-utils>=0.0.8
+
+# Data Science & Visualization (Upgraded for Numpy 2.x compatibility)
+matplotlib>=3.10.0
+scipy>=1.14.0
+scikit-learn>=1.6.0
